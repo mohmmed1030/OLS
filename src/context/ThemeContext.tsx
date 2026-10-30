@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { BackgroundPatternId, PaletteId, ThemeContextType, ThemeMode } from '../types/theme';
+import { safeStorage } from '../utils/storage';
 
 interface ThemeColorTokens {
   bgCanvas: string;
@@ -177,36 +178,36 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [palette, setPaletteState] = useState<PaletteId>(() => {
-    return (localStorage.getItem('omega_palette') as PaletteId) || 'indigo';
+    return (safeStorage.getItem('omega_palette') as PaletteId) || 'indigo';
   });
 
   const [mode, setModeState] = useState<ThemeMode>(() => {
-    return (localStorage.getItem('omega_mode') as ThemeMode) || 'dark';
+    return (safeStorage.getItem('omega_mode') as ThemeMode) || 'dark';
   });
 
   const [backgroundPattern, setBackgroundPatternState] = useState<BackgroundPatternId>(() => {
-    const saved = localStorage.getItem('omega_bg_pattern') as BackgroundPatternId;
+    const saved = safeStorage.getItem('omega_bg_pattern') as BackgroundPatternId;
     if (saved === 'waves') return 'atoms';
     return saved || 'atoms';
   });
 
   const [animationEnabled, setAnimationEnabledState] = useState<boolean>(() => {
-    const saved = localStorage.getItem('omega_animation_enabled');
+    const saved = safeStorage.getItem('omega_animation_enabled');
     return saved !== null ? saved === 'true' : true;
   });
 
   const [username, setUsernameState] = useState<string>(() => {
-    return localStorage.getItem('omega_username') || 'Scholar';
+    return safeStorage.getItem('omega_username') || 'Scholar';
   });
 
   const setPalette = (newPalette: PaletteId) => {
     setPaletteState(newPalette);
-    localStorage.setItem('omega_palette', newPalette);
+    safeStorage.setItem('omega_palette', newPalette);
   };
 
   const setMode = (newMode: ThemeMode) => {
     setModeState(newMode);
-    localStorage.setItem('omega_mode', newMode);
+    safeStorage.setItem('omega_mode', newMode);
   };
 
   const toggleMode = () => {
@@ -216,24 +217,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setBackgroundPattern = (newPattern: BackgroundPatternId) => {
     setBackgroundPatternState(newPattern);
-    localStorage.setItem('omega_bg_pattern', newPattern);
+    safeStorage.setItem('omega_bg_pattern', newPattern);
   };
 
   const toggleAnimation = () => {
     const nextState = !animationEnabled;
     setAnimationEnabledState(nextState);
-    localStorage.setItem('omega_animation_enabled', String(nextState));
+    safeStorage.setItem('omega_animation_enabled', String(nextState));
   };
 
   const setAnimationEnabled = (enabled: boolean) => {
     setAnimationEnabledState(enabled);
-    localStorage.setItem('omega_animation_enabled', String(enabled));
+    safeStorage.setItem('omega_animation_enabled', String(enabled));
   };
 
   const setUsername = (name: string) => {
     const trimmed = name.trim() || 'Scholar';
     setUsernameState(trimmed);
-    localStorage.setItem('omega_username', trimmed);
+    safeStorage.setItem('omega_username', trimmed);
   };
 
   useEffect(() => {

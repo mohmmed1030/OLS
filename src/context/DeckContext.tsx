@@ -10,6 +10,7 @@ import {
   QuestionType
 } from '../types/decks';
 import { sound } from '../utils/sound';
+import { safeStorage } from '../utils/storage';
 
 interface UndoToast {
   id: string;
@@ -230,28 +231,44 @@ const DeckContext = createContext<DeckContextType | undefined>(undefined);
 
 export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [folders, setFolders] = useState<Folder[]>(() => {
-    const saved = localStorage.getItem('omega_folders');
-    return saved ? JSON.parse(saved) : INITIAL_FOLDERS;
+    try {
+      const saved = safeStorage.getItem('omega_folders');
+      return saved ? JSON.parse(saved) : INITIAL_FOLDERS;
+    } catch {
+      return INITIAL_FOLDERS;
+    }
   });
 
   const [decks, setDecks] = useState<Deck[]>(() => {
-    const saved = localStorage.getItem('omega_decks');
-    return saved ? JSON.parse(saved) : INITIAL_DECKS;
+    try {
+      const saved = safeStorage.getItem('omega_decks');
+      return saved ? JSON.parse(saved) : INITIAL_DECKS;
+    } catch {
+      return INITIAL_DECKS;
+    }
   });
 
   const [trash, setTrash] = useState<TrashItem[]>(() => {
-    const saved = localStorage.getItem('omega_trash');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = safeStorage.getItem('omega_trash');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   const [testScores, setTestScores] = useState<TestScoreRecord[]>(() => {
-    const saved = localStorage.getItem('omega_test_scores');
-    return saved ? JSON.parse(saved) : INITIAL_TEST_SCORES;
+    try {
+      const saved = safeStorage.getItem('omega_test_scores');
+      return saved ? JSON.parse(saved) : INITIAL_TEST_SCORES;
+    } catch {
+      return INITIAL_TEST_SCORES;
+    }
   });
 
   // Track if user explicitly cleared analytics
   const [analyticsCleared, setAnalyticsCleared] = useState<boolean>(() => {
-    return localStorage.getItem('omega_analytics_cleared') === 'true';
+    return safeStorage.getItem('omega_analytics_cleared') === 'true';
   });
 
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
@@ -260,23 +277,23 @@ export const DeckProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Sync with LocalStorage
   useEffect(() => {
-    localStorage.setItem('omega_folders', JSON.stringify(folders));
+    safeStorage.setItem('omega_folders', JSON.stringify(folders));
   }, [folders]);
 
   useEffect(() => {
-    localStorage.setItem('omega_decks', JSON.stringify(decks));
+    safeStorage.setItem('omega_decks', JSON.stringify(decks));
   }, [decks]);
 
   useEffect(() => {
-    localStorage.setItem('omega_trash', JSON.stringify(trash));
+    safeStorage.setItem('omega_trash', JSON.stringify(trash));
   }, [trash]);
 
   useEffect(() => {
-    localStorage.setItem('omega_test_scores', JSON.stringify(testScores));
+    safeStorage.setItem('omega_test_scores', JSON.stringify(testScores));
   }, [testScores]);
 
   useEffect(() => {
-    localStorage.setItem('omega_analytics_cleared', String(analyticsCleared));
+    safeStorage.setItem('omega_analytics_cleared', String(analyticsCleared));
   }, [analyticsCleared]);
 
   // Compute Comprehensive Analytics Summary:
